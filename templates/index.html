@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Flask Form Example</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+  </head>
+  <body>
+    <div class="field_container">
+      <div class="box input_field">
+      <h4>Input Parameters</h4>
+      <div class="form_container">
+        <form action="{{url_for('process')}}" method="POST">
+          <label for="xl1" for="yl1"
+            >(x,y)-coordinate of line-1-----------------------</label
+          >
+          (<input
+            type="number"
+            step="any"
+            name="xl1"
+            id="xl1"
+            value="{{ xl1 }}"
+          />), (<input
+            type="number"
+            step="any"
+            name="yl1"
+            id="yl1"
+            value="{{ yl1 }}"
+          />)<br />
+          <label for="xl2" for="yl2"
+            >(x,y)-coordinate of line-2-----------------------</label
+          >
+          (<input
+            type="number"
+            step="any"
+            name="xl2"
+            id="xl2"
+            value="{{ xl2 }}"
+          />), (<input
+            type="number"
+            step="any"
+            name="yl2"
+            id="yl2"
+            value="{{ yl2 }}"
+          />)<br />
+          <label for="xl3" for="yl3"
+            >(x,y)-coordinate of line-3-----------------------</label
+          >
+          (<input
+            type="number"
+            step="any"
+            name="xl3"
+            id="xl3"
+            value="{{ xl3 }}"
+          />), (<input
+            type="number"
+            step="any"
+            name="yl3"
+            id="yl3"
+            value="{{ yl3 }}"
+          />)<br /><br />
+          <label for="xmp" for="ymp"
+            >(x,y)-coordinate of measuring-point-----------</label
+          >
+          (<input
+            type="number"
+            step="any"
+            name="xmp"
+            id="xmp"
+            value="{{ xmp }}"
+          />), (<input
+            type="number"
+            step="any"
+            name="ymp"
+            id="ymp"
+            value="{{ ymp }}"
+          />)<br />
+          <label for="mr"
+            >Measuring range on ground below the line(in meter)--</label
+          >
+          <input
+            type="number"
+            step="any"
+            step="any"
+            name="mr"
+            id="mr"
+            value="{{ mr }}"
+          /><br />
+          <label for="lv"
+            >Line voltage(in kV)-----------------------------------------</label
+          >
+          <input
+            type="number"
+            step="any"
+            id="lv"
+            name="lv"
+            value="{{ lv }}"
+          /><br />
+          <label for="psl"
+            >Power Supplied to the load(in MW)---------------------</label
+          >
+          <input
+            type="number"
+            step="any"
+            id="psl"
+            name="psl"
+            value="{{ psl }}"
+          /><br />
+          <label for="nscb"
+            >Number of Sub-conductors in bundle-------------------</label
+          >
+          <input
+            type="number"
+            step="any"
+            id="nscb"
+            name="nscb"
+            value="{{ nscb }}"
+          /><br />
+          <label for="dsc"
+            >Diameter of Sub-conductor in bundle(in cm)----------</label
+          >
+          <input
+            type="number"
+            step="any"
+            id="dsc"
+            name="dsc"
+            value="{{ dsc }}"
+          /><br />
+          <label for="bs"
+            >Bundle spacing(in cm)------------------------------------</label
+          >
+          <input type="number" step="any" id="bs" name="bs" value="{{ bs }}" />
+          <div class="submit_container">
+            <input type="submit" value="Submit" />
+          </div>
+        </form>
+      </div>
+      </div>
+      {% if (Eom or Ecm) %}
+      <div class="box output_field">
+      
+      
+      <u><h3>Output Parameteres(On measuring-point) </h3></u>
+      <strong>
+        Maximum voltage gradient for outer lines(line-1 and line-3):
+      </strong>
+      {{ Eom }} kV/cm
+      <br />
+      <strong> Maximum voltage gradient for middle line(line-2): </strong> {{
+      Ecm }} kV/cm <br />
+      <strong>Audible Noise due to line-1 : </strong> {{AN_1}} dB <br />
+      <strong>Audible Noise due to line-2 : </strong> {{AN_2}} dB <br />
+      <strong>Audible Noise due to line-3 : </strong> {{AN_3}} dB <br />
+      <strong>Total Audible Noise due to three lines : </strong> {{AN_Total}} dB
+      <br />
+      <strong>Radio Interfernece due to line-1:</strong> {{ RI_1 }} dB <br />
+      <strong>Radio Interfernece due to line-2:</strong> {{ RI_2 }} dB <br />
+      <strong>Radio Interfernece due to line-3:</strong> {{ RI_3 }} dB <br />
+      <strong>Total Radio Interfernece due to 3 lines:</strong> {{ RI_Total }}
+      dB <br />
+      <strong>Horizontal component of Elecric Field:</strong> {{ EF_h }} kV/m
+      <br />
+      <strong>Vertical component of Elecric Field:</strong> {{ EF_v }} kV/m
+      <br />
+      <strong>Total Magnitude of Elecric Field:</strong> {{ EF_TM }} kV/m <br />
+      <strong>Horizontal component of Magnetic Field:</strong> {{ Hh_T }} Amp/m
+      <br />
+      <strong>Vertical component of Megnetic Field:</strong> {{ Hv_T }} Amp/m
+      <br />
+      <strong>Total Magnitude of Magnetic Field:</strong> {{ MF_TM }} Amp/m <br />
+      {% endif %}
+      </div>
+    </div>
+    <div>
+      {% if labels and AN_values %}
+      <canvas id="AN_Chart"></canvas>
+      <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+      <script>
+        var ctx = document.getElementById('AN_Chart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ labels | safe }},
+                datasets: [{
+                    fill: false,
+                    lineTension: 0,
+                    label: 'Audible-Noise',
+                    data: {{ AN_values | safe }},
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)'
+                }]
+            },
+            options: {
+              responsive: false
+            }
+        });
+      </script>
+      {% endif %}
+    </div>
+    <div>
+      {% if labels and RI_values %}
+      <canvas id="RI_Chart"></canvas>
+      <script>
+        var ctx = document.getElementById('RI_Chart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ labels | safe }},
+                datasets: [{
+                    fill: false,
+                    lineTension: 0,
+                    label: 'Radio-Interference',
+                    data: {{ RI_values | safe }},
+                    borderColor: 'black',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)'
+                }]
+            },
+            options: {
+              responsive: false
+            }
+        });
+      </script>
+      {% endif %}
+    </div>
+    {% if labels and EF_values %}
+      <canvas id="EF_Chart"></canvas>
+      <script>
+        var ctx = document.getElementById('EF_Chart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ labels | safe }},
+                datasets: [{
+                    fill: false,
+                    lineTension: 0,
+                    label: 'Electric-Field',
+                    data: {{ EF_values | safe }},
+                    borderColor: 'blue',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)'
+                }]
+            },
+            options: {
+              responsive: false,
+            
+            }
+        });
+      </script>
+      {% endif %}
+    </div>
+    {% if labels and MF_values %}
+      <canvas id="MF_Chart"></canvas>
+      <script>
+        var ctx = document.getElementById('MF_Chart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ labels | safe }},
+                datasets: [{
+                    fill: false,
+                    lineTension: 0,
+                    label: 'Magnetic-Field',
+                    data: {{ MF_values | safe }},
+                    borderColor: 'green',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)'
+                }]
+            },
+            options: {
+              responsive: false
+            }
+        });
+      </script>
+      {% endif %}
+    </div>
+  </body>
+</html>
