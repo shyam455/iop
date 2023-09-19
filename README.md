@@ -16,7 +16,7 @@ In this application user can enter different parameters of an extra High Votage 
              8. Bundle spacing(in cm)
              
 
-Output Parameters:-
+#Output Parameters:-
 
              1. Maximum voltage gradient for outer lines(line1 and line3)
              2. Maximum voltage gradient for middle line(line2)
@@ -28,7 +28,7 @@ Output Parameters:-
              7. Graph of varying ouput values of Audible-Noise, Radio-Interference, Electric and Magnetic Field.
 
 
-Tech Stack:-
+#Tech. Stack:-
 
            1. HTML(html-form) - Taking input parameters
            2. CSS
